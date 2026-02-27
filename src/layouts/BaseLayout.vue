@@ -8,7 +8,6 @@
             </ion-header>
             <ion-content>
                 <ion-list>
-                    <!-- Información del usuario -->
                     <ion-item>
                         <ion-avatar aria-hidden="true" slot="start">
                             <img alt="" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
@@ -19,22 +18,45 @@
 
                     <ion-accordion-group>
                         <!-- ========================================== -->
-                        <!-- ACORDEÓN 1: MIS APIS -->
+                        <!-- ACORDEÓN 1: MIS APIS (TUS APLICACIONES) -->
                         <!-- ========================================== -->
                         <ion-accordion value="mis-apis">
                             <ion-item slot="header" color="light">
                                 <ion-label>
                                     <h2>🚀 Mis APIs</h2>
-                                    <p>Consumidas con Pinia</p>
+                                    <p>Aplicaciones desarrolladas</p>
                                 </ion-label>
                             </ion-item>
                             <div slot="content">
                                 <ion-list>
-                                    <ion-item button @click="irAPaises">
-                                        <ion-label>🌍 Países del Mundo</ion-label>
+                                    <ion-item button @click="irAPaises" detail>
+                                        <ion-icon :icon="globeOutline" slot="start" color="primary"></ion-icon>
+                                        <ion-label>
+                                            <h2>🌍 Países del Mundo</h2>
+                                            <p>RestCountries API</p>
+                                        </ion-label>
                                     </ion-item>
-                                    <ion-item button @click="irARickymorty">
-                                        <ion-label>👽 Rick & Morty</ion-label>
+                                    <ion-item button @click="irARickymorty" detail>
+                                        <ion-icon :icon="rocketOutline" slot="start" color="success"></ion-icon>
+                                        <ion-label>
+                                            <h2>👽 Rick & Morty</h2>
+                                            <p>Personajes de la serie</p>
+                                        </ion-label>
+                                    </ion-item>
+                                    <!-- NUEVAS OPCIONES DE HARDWARE -->
+                                    <ion-item button @click="irACamera" detail>
+                                        <ion-icon :icon="cameraOutline" slot="start" color="warning"></ion-icon>
+                                        <ion-label>
+                                            <h2>📷 Cámara</h2>
+                                            <p>Tomar fotos con el dispositivo</p>
+                                        </ion-label>
+                                    </ion-item>
+                                    <ion-item button @click="irAGps" detail>
+                                        <ion-icon :icon="locateOutline" slot="start" color="tertiary"></ion-icon>
+                                        <ion-label>
+                                            <h2>📍 GPS / Ubicación</h2>
+                                            <p>Obtener coordenadas actuales</p>
+                                        </ion-label>
                                     </ion-item>
                                 </ion-list>
                             </div>
@@ -147,8 +169,9 @@
 import {
     IonButtons, IonContent, IonHeader, IonMenu, IonMenuButton,
     IonPage, IonTitle, IonToolbar, IonAccordion, IonAccordionGroup,
-    IonItem, IonLabel, IonList, IonAvatar, IonButton
+    IonItem, IonLabel, IonList, IonAvatar, IonButton, IonIcon
 } from '@ionic/vue';
+import { cameraOutline, locateOutline, globeOutline, rocketOutline } from 'ionicons/icons';
 import { useUserStore } from '@/stores/user';
 import { useRouter, useRoute } from 'vue-router';
 import { computed } from 'vue';
@@ -162,6 +185,8 @@ const tituloPagina = computed(() => {
     switch (route.name) {
         case 'Paises': return '🌍 Países del Mundo';
         case 'Rickymorty': return '👽 Rick & Morty';
+        case 'Camera': return '📷 Cámara';
+        case 'Gps': return '📍 GPS / Ubicación';
         default: return 'Inicio';
     }
 });
@@ -177,6 +202,14 @@ function irAPaises() {
 
 function irARickymorty() {
     router.push('/rickymorty');
+}
+
+function irACamera() {
+    router.push('/camera');
+}
+
+function irAGps() {
+    router.push('/gps');
 }
 </script>
 

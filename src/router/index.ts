@@ -4,10 +4,12 @@ import BaseLayout from '@/layouts/BaseLayout.vue';
 import { useUserStore } from '@/stores/user';
 
 const Login = () => import('@/views/Login.vue');
-const Registro = () => import('@/views/Registro.vue');  
+const Registro = () => import('@/views/Registro.vue');
 const Seccion = () => import('@/views/Seccion.vue');
 const Paises = () => import('@/views/Paises.vue');
 const Rickymorty = () => import('@/views/Rickymorty.vue');
+const Camera = () => import('@/views/Camera.vue');
+const Gps = () => import('@/views/Gps.vue');
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -61,24 +63,48 @@ const routes: Array<RouteRecordRaw> = [
       }
     ],
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/camera',
+    name: 'Camera',
+    component: BaseLayout,
+    children: [
+      {
+        path: '',
+        component: Camera
+      }
+    ],
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/gps',
+    name: 'Gps',
+    component: BaseLayout,
+    children: [
+      {
+        path: '',
+        component: Gps
+      }
+    ],
+    meta: { requiresAuth: true }
   }
-]
+];
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
-})
+});
 
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore();
   const isAuthenticated = !!userStore.token;
-  if(to.meta.requiresAuth && !isAuthenticated) {
+  if (to.meta.requiresAuth && !isAuthenticated) {
     next('/login');
-  } else if(isAuthenticated && !to.meta.requiresAuth) {
+  } else if (isAuthenticated && !to.meta.requiresAuth) {
     next('/seccion');
   } else {
     next();
   }
 });
 
-export default router
+export default router;
