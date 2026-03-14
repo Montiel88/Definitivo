@@ -1,39 +1,40 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Cámara</ion-title>
+    <ion-header class="ion-no-border">
+      <ion-toolbar color="transparent">
+        <ion-title>📷 Cámara</ion-title>
       </ion-toolbar>
     </ion-header>
-    
-    <ion-content class="ion-padding">
+
+    <ion-content class="camera-content">
       <div class="camera-container">
         <div v-if="photo" class="preview-container">
-          <ion-img :src="photo" class="photo-preview" />
-          <ion-button expand="block" @click="resetPhoto" color="medium">
-            <ion-icon :icon="trash" slot="start"></ion-icon>
-            Nueva foto
-          </ion-button>
+          <div class="photo-wrapper">
+            <img :src="photo" class="photo-preview" />
+          </div>
+          
+          <div class="action-buttons">
+            <ion-button expand="block" @click="takePicture" class="primary-button">
+              <ion-icon :icon="camera" slot="start"></ion-icon>
+              Tomar otra foto
+            </ion-button>
+            
+            <ion-button expand="block" @click="resetPhoto" class="secondary-button">
+              <ion-icon :icon="trash" slot="start"></ion-icon>
+              Eliminar foto
+            </ion-button>
+          </div>
         </div>
 
-        <div v-else class="upload-container">
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            ref="fileInput"
-            @change="handleFileSelect"
-            style="display: none"
-          />
-          
-          <div class="upload-placeholder" @click="triggerFileInput">
-            <ion-icon :icon="cameraOutline" size="large"></ion-icon>
-            <h3>Tomar foto</h3>
-            <p>Haz clic para usar la cámara</p>
+        <div v-else class="empty-state">
+          <div class="icon-circle">
+            <ion-icon :icon="camera" class="empty-icon"></ion-icon>
           </div>
-
-          <ion-button expand="block" @click="triggerFileInput">
-            <ion-icon slot="start" :icon="camera"></ion-icon>
+          <h2>Sin fotos</h2>
+          <p>Toma una foto para verla aquí</p>
+          
+          <ion-button expand="block" @click="takePicture" class="primary-button">
+            <ion-icon :icon="camera" slot="start"></ion-icon>
             Abrir cámara
           </ion-button>
         </div>
@@ -44,84 +45,152 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { 
-  IonPage, IonHeader, IonToolbar, IonTitle, IonContent, 
-  IonImg, IonButton, IonIcon 
-} from '@ionic/vue';
-import { cameraOutline, camera, trash } from 'ionicons/icons';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon } from '@ionic/vue';
+import { camera, trash } from 'ionicons/icons';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 
 const photo = ref<string | null>(null);
-const fileInput = ref<HTMLInputElement | null>(null);
 
-const triggerFileInput = () => {
-  fileInput.value?.click();
-};
-
-const handleFileSelect = (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  if (input.files && input.files[0]) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      photo.value = e.target?.result as string;
-    };
-    reader.readAsDataURL(input.files[0]);
+const takePicture = async () => {
+  try {
+    const image = await Camera.getPhoto({
+      quality: 90,
+      allowEditing: false,
+      resultType: CameraResultType.Uri,
+      source: CameraSource.Prompt // ← ESTO ES CLAVE: fuerza a usar la cámara, no la galería
+    });
+    photo.value = image.webPath!;
+  } catch (error) {
+    console.error('Error al tomar foto', error);
   }
 };
 
 const resetPhoto = () => {
   photo.value = null;
-  if (fileInput.value) {
-    fileInput.value.value = '';
-  }
 };
 </script>
 
 <style scoped>
-.camera-container {
+.camera-content {
+  --background: linear-gradient(145deg, #ff6b6b 0%, #feca57 100%);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100%;
-  padding: 16px;
 }
 
-.upload-container {
+.camera-container {
   width: 100%;
   max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.empty-state {
   text-align: center;
+  color: white;
+  animation: fadeIn 0.6s ease;
 }
 
-.upload-placeholder {
-  border: 2px dashed #ccc;
-  border-radius: 12px;
-  padding: 40px 20px;
-  margin-bottom: 20px;
-  cursor: pointer;
-  transition: all 0.3s;
+.icon-circle {
+  background: rgba(255, 255, 255, 0.2);
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-.upload-placeholder:hover {
-  border-color: #3880ff;
-  background-color: #f0f4ff;
+.empty-icon {
+  font-size: 50px;
+  color: white;
 }
 
-.upload-placeholder ion-icon {
-  font-size: 64px;
-  color: #666;
-  margin-bottom: 16px;
+.empty-state h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 0 0 10px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.empty-state p {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 30px;
 }
 
 .preview-container {
-  width: 100%;
-  max-width: 400px;
-  text-align: center;
+  animation: fadeIn 0.6s ease;
+}
+
+.photo-wrapper {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 10px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
 }
 
 .photo-preview {
   width: 100%;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.primary-button {
+  --background: white;
+  --color: #ff6b6b;
+  --border-radius: 12px;
+  --box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.secondary-button {
+  --background: rgba(255, 255, 255, 0.2);
+  --color: white;
+  --border-radius: 12px;
+  --box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(10px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ajustes para toolbar */
+ion-toolbar {
+  --background: transparent;
+  --border-color: transparent;
+}
+
+ion-title {
+  color: white;
+  font-weight: 600;
+  font-size: 1.2rem;
 }
 </style>
