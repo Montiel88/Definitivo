@@ -1,72 +1,66 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
 import BaseLayout from '@/layouts/BaseLayout.vue';
-import { useUserStore } from '@/stores/user';
 
-const Login = () => import('@/views/Login.vue');
-const Registro = () => import('@/views/Registro.vue');  
-const Camara = () => import('@/views/Camara.vue');
-const SeccionContenidos = () => import('@/views/SeccionContenido.vue');
+import Login from '@/views/Login.vue';
+import Registro from '@/views/Registro.vue';
+import Inicio from '@/views/Inicio.vue'; // 👈 NUEVA
+import Ecuador from '@/views/Ecuador.vue';
+import Rickymorty from '@/views/Rickymorty.vue';
+import Gps from '@/views/Gps.vue';
+import Camara from '@/views/Camara.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/seccion'
+    redirect: '/login'
   },
   {
     path: '/login',
     name: 'Login',
-    component: Login,
-    meta: {
-      requiresAuth: false
-    },
+    component: Login
   },
   {
     path: '/registro',
     name: 'Registro',
-    component: Registro,
-    meta: {
-      requiresAuth: false
-    },
+    component: Registro
   },
   {
-    path: '/camara',
-    name: 'Camara',
-    component: Camara,
-    meta: {
-      requiresAuth: true
-    }
-  },
-  {
-    path: '/seccion',
-    name: 'Seccion',
+    path: '/app',
     component: BaseLayout,
-    meta: {
-      requiresAuth: true
-    },
     children: [
       {
-        path: ':name',
-        name: 'SeccionContenidos',
-        component: SeccionContenidos,
+        path: '', // Ruta vacía = /app
+        name: 'Inicio',
+        component: Inicio
       },
+      {
+        path: 'ecuador',
+        name: 'Ecuador',
+        component: Ecuador
+      },
+      {
+        path: 'rickymorty',
+        name: 'Rickymorty',
+        component: Rickymorty
+      },
+      {
+        path: 'gps',
+        name: 'Gps',
+        component: Gps
+      },
+      {
+        path: 'camara',
+        name: 'Camara',
+        component: Camara
+      }
     ]
-  },
-]
+  }
+];
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
-})
-
-router.beforeEach((to, from) => {
-  const userStore = useUserStore();
-  const isAuthenticated = !!userStore.token;
-  if(to.meta.requiresAuth && !isAuthenticated) {
-    return '/login';
-  }else if(isAuthenticated && !to.meta.requiresAuth) {
-    return '/seccion';
-  }
 });
 
-export default router
+export default router;
